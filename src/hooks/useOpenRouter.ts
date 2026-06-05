@@ -47,13 +47,16 @@ export function useOpenRouter({ apiKey, systemPrompt }: UseOpenRouterOptions) {
         stream: false,
       };
 
+      // Strip any non-ISO-8859-1 characters (e.g. BOM from env var encoding issues)
+      const safeKey = apiKey.replace(/[^\x20-\xFF]/g, '').trim();
+
       try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${safeKey}`,
             'Content-Type': 'application/json',
-            'HTTP-Referer': window.location.origin,
+            'HTTP-Referer': window.location.href,
             'X-Title': 'Medical Reservation System',
           },
           body: JSON.stringify(payload),
